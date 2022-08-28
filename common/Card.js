@@ -1,27 +1,28 @@
-import React from 'react'
-import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import * as React from 'react';
+import { StyleSheet, View, Image, Text, TouchableOpacity } from 'react-native';
 
+class Card extends React.Component {
 
-const Card = ({img, title, description, ind, publishedAt, navigation, author}) => {
-    return (
-        <View
-        key={ind}
-        style={styles.views}
-        >
-            <Image
-                style={styles.img}
-                source={{ uri: img }}
-                img={img}
-            />
-            <View style={{ flexShrink: 1}}>
-                <TouchableOpacity
-                onPress={() => navigation.navigate("Info", { img, description, title, publishedAt, author, navigation})}
-                >
-                    <Text style={styles.header}>{title}</Text>
-                </TouchableOpacity>
-            </View>
-        </View>
-    )
+    render() {
+        // const { navigation, body, key, title, img } = this.props
+        return (
+            <TouchableOpacity
+                key={key}
+                style={styles.views}
+                onPress={() => navigation.navigate("Info", { img, key, body, title })}
+            >
+                <Image
+                    style={styles.img}
+                    source={{ uri: img }}
+                    img={img}
+                />
+                <View style={{ flexShrink: 1 }}>
+                    <Text style={styles.header} titl={title}>{title}</Text>
+                    <Text style={styles.data} body={body}>{`${body.slice(0, 160)}.........ReadMore`}</Text>
+                </View>
+            </TouchableOpacity>
+        )
+    }
 }
 
 export default Card
@@ -32,7 +33,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
         padding: 8,
         borderRadius: 10,
-        marginBottom: 10,
+        marginBottom: 10
     },
     img: {
         width: 120,
@@ -40,9 +41,10 @@ const styles = StyleSheet.create({
         borderRadius: 10,
     },
     header: {
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: 'bold',
-        marginHorizontal: 10,
+        marginLeft: 10,
+        marginBottom: 10,
     },
     data: {
         fontSize: 16,

@@ -1,145 +1,49 @@
-import React, { useEffect, useState } from 'react'
-import { View, Text, ScrollView, FlatList, TextInput, StyleSheet, RefreshControl,Image } from 'react-native';
+import { useEffect, useState } from 'react';
+import { View, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 import Card from '../common/Card';
+import Header from '../common/Header';
 import Footer from '../common/Footer';
 
+export default Home = ({ navigation }) => {
 
-const Home = ({ navigation }) => {
+    const [data, SetData] = useState([])
+    const [isLoading, setIsLoading] = useState(true)
 
-    const [news, setNews] = useState([])
-    const [filteredNews, setFilteredNews] = useState([])
-    const [search, setSearch] = useState('')
-    const [refresh, setRefresh] = useState(false)
+    useEffect(() => {
+        fetchData();
+    }, [])
 
-    useEffect(()=> {
-        fetchNews()
-    },[])
-
-    const fetchNews = ()=> {
-        return fetch('https://forkify-api.herokuapp.com/api/search?q=pasta')
-        .then(res =>res.json())
-        .then(json => {
-            setNews(json.recipes)
-            console.log(json.recipes)
-        }) 
-        // fetch('https://newsapi.org/v2/everything?q=tesla&from=2022-07-14&sortBy=publishedAt&apiKey=5511b6e00c9f46e69392688d68a92bbf')
-        //         .then(res => res.json())
-        //         .then(({articles}) => setNews(articles))
-        //         .then(({articles}) => setFilteredNews(articles))
-        //         .catch(err => console.log(err))
-    }
-
-    const searchFilter = (input)=> {
-        if (input) {
-            const newData = news.filter((item)=> {
-                const itemData = item.title ? item.title.toUpperCase() : ''.toUpperCase();
-                const inputData = input.toUpperCase();
-                return itemData.indexOf(inputData) > -1;
-            })
-            setFilteredNews(newData);
-            setSearch(input)
-        } else {
-            fetchNews()
-            setFilteredNews(news)
-            setSearch(input)
-        }
-    }
-
-
-    const ItemView = ({item}) => {
-        return (
-            <View>
-            <Card 
-                // img={item.urlToImage} 
-                title={item.title} 
-                navigation={navigation} 
-                // description={item.description}
-                // author={item.author}
-                // publishedAt={item.publishedAt}w
-            />
-        </View>
-        )
-    }
-
-    const ItemSeparatorView = ()=> {
-        return( 
-            <View
-            style={{height: 0.5,width: '100%', backgroundColor: '#c8c8c8'}}
-            />
-        )
-    }
-
-    const pull = ()=> {
-        setRefresh(true)
-        fetchNews()
-        setTimeout(()=> {
-            setRefresh(false)
-        }, 1500)
+    const fetchData = () => {
+        return fetch("https://mockend.com/HosamZewain/test/posts")
+            .then((res) => res.json())
+            .then((json) => {
+                SetData(json),
+                    setIsLoading(false)
+            }
+            )
+            .catch(err => `error is ${err}`)
     }
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#ccc' }}>
-            <View style={{ flex: 1}}>
-                <View style={styles.views}>
-                    <Image
-                    style={{ width: 35, height: 35 }}
-                    source={require('../images/newspaper.png')}
-                    />
-                    <TextInput
-                    style={styles.input}
-                    value={search}
-                    placeholder='Search'
-                    underlineColorAndroid="transparent"
-                    onChangeText={(input)=> {
-                        searchFilter(input)
-                    }}
-                />
-                </View>
-                <FlatList
-                    style={{ padding: 6, flex: 1}}
-                    data={filteredNews}
-                    keyExtractor={(item,index)=>index.toString()}
-                    ItemSeparatorComponent={ItemSeparatorView}
-                    renderItem={ItemView}
-                    refreshControl={
-                            <RefreshControl
-                                refreshing={refresh}
-                                onRefresh={()=> pull()}
-                                colors={['green','orange','red']}
-                            />
-                        }
-                />
+            <View style={{ flex: 1 }}>
+                <Header navigation={navigation} />
+                <ScrollView style={{ padding: 10 }}>
+                    {isLoading
+                        ?
+                        <ActivityIndicator size="large" color="#0000ff" />
+                        :
+                        data.map((item) => {
+                            return <Card navigation={navigation} body={item.body} key={item.id} title={item.title} img={item.image} />
+                        })
+                    }
+                </ScrollView>
             </View>
             <Footer navigation={navigation} />
         </SafeAreaView>
-        
-    )
+    );
 }
 
-export default Home
 
-
-const styles = StyleSheet.create({
-    views: {
-        flexShrink: 1,
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        backgroundColor: "gray",
-        padding: 10,
-    }, 
-    itemStyle: {
-        padding: 15,
-    },
-    input: {
-        height: 40,
-        width: 200,
-        borderWidth: 1,
-        paddingLeft: 5,
-        margin: 5,
-        borderColor: 'black',
-        borderRadius: 5,
-        backgroundColor: '#fff'
-    }
-})
